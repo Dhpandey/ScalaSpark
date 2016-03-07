@@ -1,3 +1,9 @@
-.settings
-/target/
-/.idea/
+*/target/**
+*/target/*
+.classpath
+.project
+.settings/
+target/
+.iws
+workspace.xml
+tasks.xml
