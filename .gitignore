@@ -4,3 +4,6 @@
 .project
 .settings/
 target/
+.iws
+workspace.xml
+tasks.xml
