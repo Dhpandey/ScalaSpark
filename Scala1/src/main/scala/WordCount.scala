@@ -1,6 +1,7 @@
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.SparkContext._
 
+
 /**
  * Created by dheeraj on 3/4/16.
  */
@@ -13,7 +14,8 @@ object WordCount {
       val result = input.flatMap(line=>line.split(","))
         .map(word=>(word,1))
         .reduceByKey(_+_)
-      result.saveAsTextFile(output)
+
+            result.saveAsTextFile(output)
       println("Word Count Problem")
     } finally {
       sc.stop()
