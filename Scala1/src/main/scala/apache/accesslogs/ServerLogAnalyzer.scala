@@ -17,6 +17,11 @@ import apache.utility.{AccessLogs, CustomOrdering}
  * 4 Counts IPAddress and show that is accessed more then 10 times
  * 5.Counts Endpoints and order them on the basis of count using custom ordering class
  * Note :CustomOrdering and AccessLogParser are two utilities used.
+ *
+ * How to run :
+ * spark-submit --class apache.accesslogs.ServerLogAnalyzer --master
+ * local ScalaSpark/Scala1/target/scala-2.10/Scala1-assembly-1.0.jar > output.txt
+ *
  */
 class ServerLogAnalyzer {
 
@@ -30,15 +35,15 @@ class ServerLogAnalyzer {
   def responseCodeCount(log: RDD[AccessLogs]) = {
     val responseCount = log.map(log => (log.responseCode, 1))
       .reduceByKey(_ + _)
-      .collect()
+      .take(1000)
     println( s"""ResponseCodes Count : ${responseCount.mkString("[", ",", "]")} """)
   }
 
   def ipAddressFilter(log: RDD[AccessLogs]) = {
     val result = log.map(log => (log.ipAddr, 1))
       .reduceByKey(_ + _)
-     // .filter(count => count._2 > 10)
-     // .map(_._1).take(100)
+      .filter(count => count._2 > 1)
+     // .map(_._1).take(10)
       .collect()
 
     println( s"""Ip Addresses :: ${result.mkString("[", ",", "]")}""")
@@ -47,7 +52,7 @@ class ServerLogAnalyzer {
   def manageEndPoints(log: RDD[AccessLogs]) = {
     val result = log.map(log => (log.endPoint, 1))
       .reduceByKey(_ + _)
-      .top(100)(CustomOrdering.SecondValueSorting)
+      .top(10)(CustomOrdering.SecondValueSorting)
 
     println( s"""EndPoints :: ${result.mkString("[", ",", "]")}""")
   }
@@ -61,13 +66,9 @@ object ServerLogAnalyzer {
     val logs = context.textFile("serverLogs.txt").map(logFile => AccessLogs.logParser(logFile)).cache()
 
     logObj.calcContentSize(logs)
-    println("Content Size---------------------------------------------------------------->")
     logObj.responseCodeCount(logs)
-    println("ResponseCode---------------------------------------------------------------->")
     logObj.ipAddressFilter(logs)
-    println("IpAddress---------------------------------------------------------------->")
     logObj.manageEndPoints(logs)
-    println("EndPoints---------------------------------------------------------------->")
 
   }
 }

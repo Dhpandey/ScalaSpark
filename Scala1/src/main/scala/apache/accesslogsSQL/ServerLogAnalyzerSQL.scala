@@ -16,13 +16,17 @@ import org.apache.spark.{SparkConf, SparkContext}
  * 4 Counts IPAddress and show that is accessed more then 10 times
  * 5.Counts Endpoints and order them on the basis of count using custom ordering class
  * Note :CustomOrdering and AccessLogParser are two utilities used.
+ *
+ * How to Run:
+ * spark-submit --class apache.accesslogsSQL.ServerLogAnalyzerSQL --master
+ * local ScalaSpark/Scala1/target/scala-2.10/Scala1-assembly-1.0.jar > output.txt
  */
 class ServerLogAnalyzerSQL {
   def contentSize(sqlContext: SQLContext) = {
     val contentSize = sqlContext.sql("SELECT SUM(contentSize), COUNT(*),MIN(contentSize)," +
       " MAX(contentSize)" + " from AccessLogTable").first()
 
-    println("Content SIze :: Average : %s , Max:  %s Min : %s"
+    println("Content SIze :: Average : %s , Min:  %s Max : %s"
       .format(contentSize.getLong(0) / contentSize.getLong(1), contentSize(2), contentSize(3)))
   }
 
@@ -35,8 +39,9 @@ class ServerLogAnalyzerSQL {
 
   def inAddressFilter(sqlContext: SQLContext) = {
     val result = sqlContext.sql("SELECT ipAddr, COUNT(*) AS total from AccessLogTable " +
-      "GROUP BY ipAddr HAVING total<5")
-      .map(row => row.getString(0))  // just to collect only IP
+      "GROUP BY ipAddr HAVING total>1")
+      //.map(row => row.getString(0))  // just to collect only IP
+      .map(row =>(row.getString(0),row.getLong(1)))
       .collect()
     println( s"""IP address :: ${result.mkString("[", ",", "]")}""")
 
@@ -54,6 +59,7 @@ class ServerLogAnalyzerSQL {
 
 object ServerLogAnalyzerSQL {
   def main(args: Array[String]) {
+
     val logObj = new ServerLogAnalyzerSQL
     val sparkContext = new SparkContext("local", "sql log Analyzer",
       new SparkConf().setAppName("Sql Log Analyzer"))
