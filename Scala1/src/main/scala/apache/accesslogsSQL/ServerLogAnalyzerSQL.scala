@@ -66,7 +66,7 @@ object ServerLogAnalyzerSQL {
 
     val sqlContext = new SQLContext(sparkContext)
     import sqlContext.implicits._
-    val logs = sparkContext.textFile("serverLogs.txt").map(log => AccessLogs.logParser(log)).toDF()
+    val logs = sparkContext.textFile("data/serverLogs.txt").map(log => AccessLogs.logParser(log)).toDF()
     logs.registerTempTable("AccessLogTable")
     sqlContext.cacheTable("AccessLogTable")
 
