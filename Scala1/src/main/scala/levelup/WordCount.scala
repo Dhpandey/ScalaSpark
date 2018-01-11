@@ -4,7 +4,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 
 /**
-testtest
  * Created by dheeraj on 3/4/16.
  */
 object WordCount {
